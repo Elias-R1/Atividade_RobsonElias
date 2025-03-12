@@ -3,20 +3,20 @@ USE restaurante_db;
 
 CREATE TABLE locations (
     id INT PRIMARY KEY,
-    locations INT NOT NULL,
+    table_number INT NOT NULL,
     hourvalues DECIMAL(4,1) NOT NULL
 );
 
 CREATE TABLE clients (
-    id INT PRIMARY KEY,
-    names VARCHAR(50) NOT NULL,
-    emails VARCHAR(100) NOT NULL UNIQUE
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE
 );
 
 CREATE TABLE products (
-    id INT PRIMARY KEY,
-    names VARCHAR(50) NOT NULL,
-    prices DECIMAL(10,2) NOT NULL
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    price DECIMAL(10,2) NOT NULL
 );
 
 CREATE TABLE orders (
@@ -29,11 +29,11 @@ CREATE TABLE orders (
     FOREIGN KEY (clid) REFERENCES clients(id)
 );
 
-CREATE TABLE productsche (
+CREATE TABLE order_items (
     sid INT NOT NULL,
     pid INT NOT NULL,
-    quantities INT NOT NULL,
+    quantity INT NOT NULL,
     PRIMARY KEY (sid, pid),
-    FOREIGN KEY (sid) REFERENCES orders(id),
-    FOREIGN KEY (pid) REFERENCES products(id)
+    FOREIGN KEY (sid) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (pid) REFERENCES products(id) ON DELETE CASCADE
 );
