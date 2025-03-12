@@ -21,8 +21,8 @@ INSERT INTO orders (id, tid, clid, dates, status) VALUES
 (2, 3, 1, '2025-03-01', 'open');
 
 INSERT INTO productsche (sid, pid, quantities) VALUES 
-(1, 3, 1),
-(1, 2, 1),
-(2, 1, 1);
+(1, 3, 10),
+(1, 2, 20),
+(2, 1, 30);
 
 -- inserindo dados nas tabelas :D
