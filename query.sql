@@ -4,7 +4,7 @@ USE restaurante_db;
 SELECT o.id AS order_id, COUNT(p.pid) AS total_products, SUM(p.quantities) AS total_quantities
 FROM orders o
 JOIN productsche p ON o.id = p.sid
-WHERE o.id = 1 --apenas mudar o id do pedido desejado
+WHERE o.id = 1 -- apenas mudar o id especifico de cada pedido pra listar
 GROUP BY o.id;
 
 -- letra b = Procedure para limitar pedidos apenas a mesas que estejam em atendimento (status = 'open')
