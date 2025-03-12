@@ -6,9 +6,9 @@ INSERT INTO locations (id, table_number, hourvalues) VALUES
 (3, 10, 5.0);
 
 INSERT INTO clients (id, name, email) VALUES 
-(1, 'Laurindo', 'email@email.com'),
-(2, 'Claudia', 'email1@email.com'),
-(3, 'Laura', 'email2@email.com');
+(1, 'Robson1', 'email@email.com'),
+(2, 'Robson2', 'email1@email.com'),
+(3, 'Robson3', 'email2@email.com');
 
 INSERT INTO products (id, name, price) VALUES 
 (1, 'Ovo Frito', 4.0),
