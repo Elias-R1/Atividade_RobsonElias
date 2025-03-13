@@ -1,5 +1,6 @@
---  Letra C: Atualizar Quantidade de Produtos em um Pedido
+USE restaurante_db;
 
+--  Letra C: Atualizar Quantidade de Produtos em um Pedido
 DELIMITER //
 
 CREATE PROCEDURE AtualizarQuantidadeProdutoPedido(
