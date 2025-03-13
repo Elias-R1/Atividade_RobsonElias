@@ -1,4 +1,4 @@
-letra b: -- limitar pedidos
+-- letra b: limitar pedidos
 
 DELIMITER //
 
@@ -10,8 +10,8 @@ CREATE PROCEDURE LimitarPedidos(
 BEGIN
     DECLARE mesa_em_atendimento INT;
     
-    SELECT COUNT(*) INTO mesa_em_atendimento 
-    FROM orders 
+    SELECT COUNT(*) INTO mesa_em_atendimento
+    FROM orders
     WHERE tid = tid_param AND status IN ('reserved', 'open', 'payment');
 
     IF mesa_em_atendimento > 0 THEN
@@ -21,6 +21,7 @@ BEGIN
         INSERT INTO orders (tid, clid, dates, status)
         VALUES (tid_param, clid_param, data_param, 'reserved');
     END IF;
+
 END //
 
 DELIMITER ;
