@@ -1,6 +1,6 @@
 use restaurante_db;
 
--- letra a:
+-- letra a: Listar produtos
 SELECT 
     o.id AS order_id, 
     COUNT(p.pid) AS total_products,
