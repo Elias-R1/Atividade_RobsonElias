@@ -9,7 +9,7 @@ SELECT
 FROM orders o
 JOIN order_items p ON o.id = p.sid
 JOIN products pr ON p.pid = pr.id
-WHERE o.id = 1 -- Substituir pelo ID do pedido...
+WHERE o.id = 2 -- Substituir pelo id de algum pedido...
 GROUP BY o.id;
 
 -- letra b: Limitar pedidos para mesas que estão em atendimento
@@ -65,7 +65,7 @@ END //
 
 DELIMITER ;
 
--- letra d: Listar Pedidos em Andamento para uma Mesa Específica
+-- Listar Pedidos em Andamento para uma Mesa Específica
 SELECT 
     o.id AS order_id,
     o.clid AS client_id,
@@ -81,7 +81,7 @@ WHERE o.tid = 1  -- Substitua o ID pela mesa desejada
 AND o.status IN ('reserved', 'open', 'payment')
 GROUP BY o.id;
 
--- letra e: Cancelar Pedido
+-- Cancelar Pedido
 DELIMITER //
 
 CREATE PROCEDURE CancelarPedido(
@@ -105,7 +105,7 @@ END //
 
 DELIMITER ;
 
--- letra f: Gerar Relatório de Pedidos por Status
+-- Gerar Relatório de Pedidos por Status
 SELECT 
     o.status AS order_status,
     COUNT(o.id) AS total_orders,
@@ -116,7 +116,7 @@ JOIN order_items p ON o.id = p.sid
 JOIN products pr ON p.pid = pr.id
 GROUP BY o.status;
 
--- letra g: Listar Pedidos de um Cliente
+-- Listar Pedidos de um Cliente
 SELECT 
     o.id AS order_id,
     o.dates AS order_date,
@@ -127,10 +127,10 @@ SELECT
 FROM orders o
 JOIN order_items p ON o.id = p.sid
 JOIN products pr ON p.pid = pr.id
-WHERE o.clid = 1  -- Substitua 1 pelo ID do cliente desejado
+WHERE o.clid = 1  -- Substitua o id pra de um cliente especifico...
 GROUP BY o.id;
 
--- letra h: Atualizar Status do Pedido
+-- Atualizar Status do Pedido
 DELIMITER //
 
 CREATE PROCEDURE AtualizarStatusPedido(
@@ -145,7 +145,7 @@ END //
 
 DELIMITER ;
 
--- letra i: Excluir Pedido e Itens Associados
+-- Excluir Pedido e Itens Associados
 DELIMITER //
 
 CREATE PROCEDURE ExcluirPedido(
