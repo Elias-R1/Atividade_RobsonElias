@@ -1,6 +1,6 @@
-use restaurante_db;
+USE restaurante_db;
 
--- letra a: Listar produtos
+-- letra a: Listar produtos de um pedido específico
 SELECT 
     o.id AS order_id, 
     COUNT(p.pid) AS total_products,
@@ -9,5 +9,5 @@ SELECT
 FROM orders o
 JOIN order_items p ON o.id = p.sid
 JOIN products pr ON p.pid = pr.id
-WHERE o.id = 1 -- trocar pelo ID de algum pedido...
+WHERE o.id = 1 -- Substituir pelo ID do pedido desejado
 GROUP BY o.id;
