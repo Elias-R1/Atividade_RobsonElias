@@ -26,16 +26,3 @@ BEGIN
 END //
 
 DELIMITER ;
-
--- consultas pra procedure...
-CALL LimitarPedidos(2, 1, '2025-03-29');
-
-SELECT id, tid, status 
-FROM orders 
-WHERE tid = 2;
-
-UPDATE orders
-SET status = 'closed'
-WHERE tid = 2 AND status IN ('reserved', 'open', 'payment');
-
-SELECT *FROM orders;
