@@ -1,3 +1,5 @@
+USE restaurante_db;
+
 -- letra b: limitar pedidos
 
 DELIMITER //
