@@ -6,7 +6,7 @@ FROM order_items oi
 WHERE oi.sid = ? -- Substituir (?) pelo id do pedido especifico (ex: 1,2 ou 3)...
 GROUP BY oi.sid;
 
--- B) criação de de uma procedure para limitar os pedidos apenas a mesas que estejam em atendimento
+-- b) criação de de uma procedure para limitar os pedidos apenas a mesas que estejam em atendimento
 DELIMITER //
 CREATE PROCEDURE LimitarPedidos()
 BEGIN
