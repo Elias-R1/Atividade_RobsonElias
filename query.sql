@@ -1,163 +1,63 @@
-USE restaurante_db;
+USE restaurante_system;
 
--- letra a: Listar produtos de um pedido específico
+-- A) listar o número de produtos e a quantidade para um pedido específico
 SELECT 
-    o.id AS order_id, 
-    COUNT(p.pid) AS total_products,
-    SUM(p.quantity) AS total_quantity,
-    GROUP_CONCAT(DISTINCT pr.name ORDER BY pr.name SEPARATOR ', ') AS product_names
-FROM orders o
-JOIN order_items p ON o.id = p.sid
-JOIN products pr ON p.pid = pr.id
-WHERE o.id = 2 -- Substituir pelo id de algum pedido...
-GROUP BY o.id;
+    ped.id AS pedido_numero, 
+    COUNT(it.pid) AS qtd_produtos, 
+    SUM(it.qtde) AS soma_quantidades
+FROM pedidos ped
+JOIN itens_pedido it ON ped.id = it.sid
+WHERE ped.id = 2  -- aqui eh so alterar o id de algum pedido especifico
+GROUP BY ped.id;
 
--- letra b: Limitar pedidos para mesas que estão em atendimento
 DELIMITER //
 
-CREATE PROCEDURE LimitarPedidos(
-    IN tid_param INT, 
-    IN clid_param INT, 
-    IN data_param DATE
+-- B) Procedure para aceitar pedidos apenas de mesas ocupadas
+CREATE PROCEDURE ControlarPedidosMesa(
+    IN mesa_id INT, 
+    IN cliente_id INT, 
+    IN data_pedido DATE
 )
 BEGIN
-    DECLARE mesa_em_atendimento INT;
-    SELECT COUNT(*) INTO mesa_em_atendimento
-    FROM orders
-    WHERE tid = tid_param AND status IN ('reserved', 'open', 'payment');
-    IF mesa_em_atendimento > 0 THEN
+    DECLARE mesa_ocupada INT;
+
+    SELECT COUNT(*) INTO mesa_ocupada
+    FROM pedidos
+    WHERE tid = mesa_id AND status IN ('reservado', 'ativo', 'pagamento');
+
+    IF mesa_ocupada > 0 THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Erro: Esta mesa já tem um pedido em andamento!';
+        SET MESSAGE_TEXT = 'Erro: A mesa já está com um pedido em andamento!';
     ELSE
-        INSERT INTO orders (tid, clid, dates, status)
-        VALUES (tid_param, clid_param, data_param, 'reserved');
+        INSERT INTO pedidos (tid, clid, datas, status)
+        VALUES (mesa_id, cliente_id, data_pedido, 'reservado');
     END IF;
-
 END //
 
-DELIMITER ;
-
--- letra c: Atualizar a quantidade de produtos em um pedido
-DELIMITER //
-
-CREATE PROCEDURE AtualizarQuantidadeProdutoPedido(
-    IN pedido_id INT,
-    IN produto_id INT,
-    IN nova_quantidade INT
+-- C) Procedure para modificar a quantidade de um item já existente em um pedido
+CREATE PROCEDURE ModificarQtdeItemPedido(
+    IN id_pedido INT,
+    IN id_item INT,
+    IN nova_qtde INT
 )
 BEGIN
-    DECLARE produto_existente INT;
-    START TRANSACTION;
-    SELECT COUNT(*) INTO produto_existente
-    FROM order_items
-    WHERE sid = pedido_id AND pid = produto_id;
-    IF produto_existente > 0 THEN
-        UPDATE order_items
-        SET quantity = nova_quantidade
-        WHERE sid = pedido_id AND pid = produto_id;
-    ELSE
-        INSERT INTO order_items (sid, pid, quantity)
-        VALUES (pedido_id, produto_id, nova_quantidade);
-    END IF;
-    COMMIT;
-
+    UPDATE itens_pedido
+    SET qtde = nova_qtde
+    WHERE sid = id_pedido AND pid = id_item;
 END //
 
 DELIMITER ;
 
--- Listar Pedidos em Andamento para uma Mesa Específica
+-- D) Listar os itens do pedido, suas quantidades, preço unitário, total por item e valor total do pedido
 SELECT 
-    o.id AS order_id,
-    o.clid AS client_id,
-    o.dates AS order_date,
-    o.status AS order_status,
-    COUNT(p.pid) AS total_products,
-    SUM(p.quantity) AS total_quantity,
-    GROUP_CONCAT(DISTINCT pr.name ORDER BY pr.name SEPARATOR ', ') AS product_names
-FROM orders o
-JOIN order_items p ON o.id = p.sid
-JOIN products pr ON p.pid = pr.id
-WHERE o.tid = 1  -- Substitua o ID pela mesa desejada
-AND o.status IN ('reserved', 'open', 'payment')
-GROUP BY o.id;
-
--- Cancelar Pedido
-DELIMITER //
-
-CREATE PROCEDURE CancelarPedido(
-    IN pedido_id INT
-)
-BEGIN
-    DECLARE pedido_status VARCHAR(20);
-    SELECT status INTO pedido_status
-    FROM orders
-    WHERE id = pedido_id;
-    IF pedido_status IN ('delivered', 'canceled') THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Erro: Este pedido não pode ser cancelado, pois já foi entregue ou cancelado.';
-    ELSE
-        UPDATE orders
-        SET status = 'canceled'
-        WHERE id = pedido_id;
-    END IF;
-
-END //
-
-DELIMITER ;
-
--- Gerar Relatório de Pedidos por Status
-SELECT 
-    o.status AS order_status,
-    COUNT(o.id) AS total_orders,
-    SUM(p.quantity) AS total_quantity,
-    SUM(p.quantity * pr.price) AS total_value
-FROM orders o
-JOIN order_items p ON o.id = p.sid
-JOIN products pr ON p.pid = pr.id
-GROUP BY o.status;
-
--- Listar Pedidos de um Cliente
-SELECT 
-    o.id AS order_id,
-    o.dates AS order_date,
-    o.status AS order_status,
-    COUNT(p.pid) AS total_products,
-    SUM(p.quantity) AS total_quantity,
-    GROUP_CONCAT(DISTINCT pr.name ORDER BY pr.name SEPARATOR ', ') AS product_names
-FROM orders o
-JOIN order_items p ON o.id = p.sid
-JOIN products pr ON p.pid = pr.id
-WHERE o.clid = 1  -- Substitua o id pra de um cliente especifico...
-GROUP BY o.id;
-
--- Atualizar Status do Pedido
-DELIMITER //
-
-CREATE PROCEDURE AtualizarStatusPedido(
-    IN pedido_id INT,
-    IN novo_status VARCHAR(20)
-)
-BEGIN
-    UPDATE orders
-    SET status = novo_status
-    WHERE id = pedido_id;
-END //
-
-DELIMITER ;
-
--- Excluir Pedido e Itens Associados
-DELIMITER //
-
-CREATE PROCEDURE ExcluirPedido(
-    IN pedido_id INT
-)
-BEGIN
-    START TRANSACTION;
-    DELETE FROM order_items
-    WHERE sid = pedido_id;
-    DELETE FROM orders
-    WHERE id = pedido_id;
-    COMMIT;
-END //
-
-DELIMITER ;
+    prod.nome AS nome_item,
+    it.qtde AS quantidade,
+    (it.qtde * prod.preco) AS total_por_item,
+    (SELECT SUM(it2.qtde * prod2.preco) 
+     FROM itens_pedido it2
+     JOIN produtos prod2 ON it2.pid = prod2.id
+     WHERE it2.sid = ped.id) AS valor_total_pedido
+FROM pedidos ped
+JOIN itens_pedido it ON ped.id = it.sid
+JOIN produtos prod ON it.pid = prod.id
+WHERE ped.id = 2;  -- Altere para o ID do pedido desejado
