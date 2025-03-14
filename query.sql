@@ -1,10 +1,15 @@
 use restaurante_db;
 
 -- a) listar o número de produtos e a quantidade de um determinado pedido
-SELECT oi.sid AS pedido_id, COUNT(oi.pid) AS numero_produtos, SUM(oi.quantity) AS quantidade_total
+SELECT 
+    oi.sid AS pedido_id,
+    p.name AS nome_produto,
+    COUNT(oi.pid) AS numero_produtos,
+    SUM(oi.quantity) AS quantidade_total
 FROM order_items oi
-WHERE oi.sid = ? -- Substituir (?) pelo id do pedido especifico (ex: 1,2 ou 3)...
-GROUP BY oi.sid;
+JOIN products p ON oi.pid = p.id
+WHERE oi.sid = ? -- Substituir (?) pelo id do pedido específico (ex: 1, 2, 3, 4, 5 ou 6)
+GROUP BY oi.sid, p.name;
 
 -- b) criação de de uma procedure para limitar os pedidos apenas a mesas que estejam em atendimento
 DELIMITER //
@@ -38,5 +43,5 @@ SELECT p.name AS produto, oi.quantity AS quantidade,
         WHERE oi2.sid = oi.sid) AS valor_total_compra
 FROM order_items oi
 JOIN products p ON oi.pid = p.id
-WHERE oi.sid = ? -- Substituir (?) pelo id do pedido desejado (ex: 1,2 ou 3)...
+WHERE oi.sid = ? -- Substituir (?) pelo id do pedido desejado (ex: 1, 2, 3, 4, 5 ou 6)
 ORDER BY produto;
